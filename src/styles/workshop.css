@@ -1,0 +1,576 @@
+/* Full scene above a compact, horizontally scrolling workshop dock. */
+#main-menu {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #e6e9df;
+  height: 100dvh;
+}
+#main-menu .menu-top {
+  width: 100%;
+  max-width: none;
+  min-height: 72px;
+  margin: 0;
+  padding: 14px 28px;
+  background: #f1f2e9;
+  border-bottom: 1px solid #d6dfd2;
+  gap: 14px;
+  z-index: 2;
+}
+#main-menu .brand {
+  gap: 10px;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+#main-menu .brand small {
+  display: block;
+  font-size: 8px;
+  margin: 5px 0 0;
+  letter-spacing: 1.8px;
+}
+.menu-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+#main-menu .menu-audio {
+  position: static;
+  margin: 0;
+  padding: 0;
+  gap: 8px;
+}
+#main-menu .menu-audio button {
+  padding: 8px 10px;
+  font-size: 10px;
+}
+#main-menu .menu-audio input {
+  width: 65px;
+}
+#main-menu #start-ride {
+  width: 156px;
+  min-height: 43px;
+  padding: 12px 18px;
+  font-size: 14px;
+  gap: 22px;
+  letter-spacing: 0;
+  border-radius: 10px;
+}
+#main-menu .garage-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  max-width: none;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+#main-menu .showroom {
+  position: relative;
+  top: auto;
+  flex: 1;
+  min-height: 260px;
+  height: auto;
+  width: 100%;
+  border-radius: 0;
+  background: radial-gradient(ellipse at 50% 70%, #f2efdc, #ccdcd3 80%);
+  overflow: hidden;
+}
+#main-menu .showroom::after {
+  display: none;
+}
+#main-menu .menu-heading {
+  position: absolute;
+  top: 20px;
+  left: 28px;
+  padding: 0;
+  z-index: 1;
+}
+#main-menu #menu-title {
+  font-size: 25px;
+  letter-spacing: 2px;
+  margin: 9px 0 7px;
+}
+#main-menu .menu-heading p {
+  font-size: 10px;
+}
+#main-menu #garage-preview {
+  inset: 0;
+  cursor: grab;
+  z-index: 0;
+  touch-action: pan-y;
+}
+#main-menu .preview-caption {
+  left: 28px;
+  bottom: 22px;
+  gap: 4px;
+}
+#main-menu .preview-caption strong {
+  font-size: 16px;
+}
+#main-menu .preview-number {
+  font-size: 8px;
+  margin-bottom: 2px;
+}
+.workshop-stage-status {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border: 1px solid #ffffff80;
+  border-radius: 24px;
+  background: #f5f4e5dc;
+  color: #45695e;
+  font-size: 11px;
+  z-index: 2;
+  max-width: 50%;
+  backdrop-filter: blur(10px);
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #66a98b;
+  border-radius: 50%;
+}
+#operation-progress {
+  width: 100%;
+  height: 4px;
+  accent-color: #b99157;
+}
+#garage-preview[data-phase]:not([data-phase="idle"]) ~ .workshop-stage-status {
+  width: 180px;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+#garage-preview[data-phase]:not([data-phase="idle"]) ~ .workshop-stage-status .status-dot,
+#garage-preview[data-phase]:not([data-phase="idle"]) ~ .workshop-stage-status #workshop-status {
+  display: none;
+}
+.operation-actions {
+  position: absolute;
+  right: 26px;
+  bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+  z-index: 2;
+}
+#modify-player {
+  min-width: 110px;
+  background: #e9b56a;
+  color: #354b45;
+  border: 1px solid #f9d99c;
+  font-size: 14px;
+  font-weight: 650;
+  box-shadow: 0 5px 20px #374e4020;
+}
+#modify-player span {
+  margin-left: 20px;
+}
+#modify-player:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+#skip-operation {
+  background: #fff9e3dd;
+  font-size: 11px;
+}
+.operation-actions small {
+  width: 100%;
+  font-size: 9px;
+  color: #60796d;
+  text-align: right;
+}
+#main-menu .garage-panel {
+  width: 100%;
+  padding: 15px 28px 10px;
+  flex: 0 0 270px;
+  min-height: 0;
+  overflow: auto;
+  border-top: 1px solid #bfcdc0;
+  background: #f1f2e9;
+  box-shadow: 0 -10px 40px #3a5b4610;
+  position: relative;
+}
+#main-menu .panel-heading {
+  display: none;
+}
+#main-menu .workshop-navigation {
+  display: inline-flex;
+  margin: 0 18px 8px 0;
+  padding: 3px;
+  vertical-align: middle;
+  background: #dfe7db;
+}
+#main-menu .workshop-navigation button {
+  padding: 7px 15px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+#main-menu #equipment-editor {
+  display: block;
+}
+#main-menu .parts-slot-group {
+  display: inline-flex;
+  margin: 0 16px 0 0;
+  gap: 7px;
+  vertical-align: middle;
+}
+#main-menu .parts-slot-group > span {
+  width: auto;
+  font-size: 10px;
+}
+#main-menu .parts-slot-group > div {
+  gap: 4px;
+}
+#main-menu .parts-slot-group button {
+  padding: 6px 11px;
+  font-size: 10px;
+}
+#main-menu .choice-heading {
+  margin: 9px 0 7px;
+}
+#main-menu .choice-heading h3 {
+  font-size: 11px;
+}
+#main-menu #part-options {
+  display: flex;
+  gap: 10px;
+  overflow: auto;
+  padding: 1px 1px 8px;
+  scroll-snap-type: x proximity;
+}
+#main-menu .part-card {
+  flex: 0 0 265px;
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  min-height: 116px;
+  scroll-snap-align: start;
+  border-radius: 11px;
+  overflow: hidden;
+}
+#main-menu .part-preview-button {
+  width: auto;
+  min-width: 0;
+  height: 116px;
+  padding: 0;
+  border-radius: 10px 0 0 10px;
+}
+#main-menu .part-preview-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+#main-menu .part-preview-button span {
+  font-size: 8px;
+  bottom: 7px;
+  right: 6px;
+}
+#main-menu .part-option {
+  padding: 10px;
+  border-radius: 0 10px 10px 0;
+  min-width: 0;
+}
+#main-menu .part-name {
+  font-size: 12px;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+#main-menu .part-name small {
+  font-size: 8px;
+}
+#main-menu .part-changes {
+  font-size: 9px;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+#main-menu .part-effect {
+  display: none;
+}
+#main-menu .part-option:disabled {
+  cursor: default;
+  opacity: 1;
+}
+#main-menu[data-operating="true"] .garage-panel button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+#main-menu .build-stats,
+#main-menu .appearance-options {
+  display: inline-block;
+  vertical-align: top;
+  margin: 3px 12px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10px;
+}
+#main-menu .build-stats summary,
+#main-menu .appearance-options summary {
+  cursor: pointer;
+  font-size: 10px;
+  padding: 6px 0;
+}
+#main-menu .build-stats[open],
+#main-menu .appearance-options[open] {
+  display: block;
+  background: #e5ecdf;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+#main-menu .build-stats .stats-title {
+  display: list-item;
+}
+#main-menu .build-stats[open] #tuning-stats {
+  grid-template-columns: repeat(4, 1fr);
+}
+#main-menu .appearance-options .garage-options {
+  max-width: 650px;
+}
+#main-menu .departure {
+  margin-top: 3px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+#main-menu #loadout-summary {
+  margin: 0;
+  font-size: 9px;
+}
+#main-menu .departure > small {
+  margin: 0;
+  font-size: 9px;
+}
+#main-menu .menu-footer {
+  display: none;
+}
+#main-menu #map-editor {
+  display: grid;
+  grid-template-columns: 240px 1fr 1fr;
+  gap: 10px 18px;
+}
+#main-menu .map-preview-heading {
+  grid-column: 1;
+  margin: 0;
+  font-size: 12px;
+}
+#main-menu #map-preview {
+  grid-column: 1;
+  grid-row: 2 / span 2;
+}
+#main-menu #map-summary {
+  grid-column: 1;
+  font-size: 9px;
+  margin: 0;
+}
+#main-menu .map-settings-grid {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  margin: 0;
+  gap: 10px;
+}
+#main-menu .map-settings-grid label {
+  font-size: 10px;
+  gap: 5px;
+}
+#main-menu .map-settings-grid select,
+#main-menu .map-settings-grid input {
+  padding: 9px;
+  font-size: 10px;
+}
+#main-menu .map-feature-toggles {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  padding: 0;
+  border: none;
+  gap: 10px;
+}
+#main-menu .map-feature-toggles label {
+  font-size: 10px;
+}
+#main-menu .map-feature-toggles small {
+  font-size: 9px;
+}
+#main-menu .map-actions {
+  grid-column: 2;
+  margin: 0;
+  gap: 8px;
+}
+#main-menu .map-actions button {
+  font-size: 10px;
+  padding: 7px;
+}
+#main-menu .map-note {
+  grid-column: 3;
+  font-size: 9px;
+  margin: 0;
+}
+@media (max-width: 750px) {
+  #main-menu .menu-top {
+    padding: 10px 16px;
+    min-height: 64px;
+  }
+  #main-menu .brand small {
+    display: none;
+  }
+  #main-menu .menu-audio label {
+    display: none;
+  }
+  .menu-top-actions {
+    gap: 8px;
+  }
+  #main-menu #start-ride {
+    width: 116px;
+    font-size: 12px;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  #main-menu .garage-panel {
+    padding: 12px 16px;
+    flex-basis: 270px;
+  }
+  #main-menu .menu-heading {
+    top: 15px;
+    left: 16px;
+  }
+  #main-menu #menu-title {
+    font-size: 20px;
+  }
+  #main-menu .menu-heading p {
+    display: none;
+  }
+  .workshop-stage-status {
+    top: auto;
+    bottom: 16px;
+    left: 16px;
+    transform: none;
+    max-width: 52%;
+    font-size: 9px;
+    padding: 8px 10px;
+  }
+  #main-menu .preview-caption {
+    display: none;
+  }
+  .operation-actions {
+    right: 16px;
+    bottom: 14px;
+    max-width: 150px;
+  }
+  .operation-actions small {
+    display: none;
+  }
+  #main-menu .parts-slot-group {
+    margin-right: 8px;
+    margin-bottom: 3px;
+  }
+  #main-menu .parts-slot-group button {
+    padding: 6px 8px;
+  }
+  #main-menu .departure > small {
+    display: none;
+  }
+  #main-menu #map-editor {
+    grid-template-columns: 1fr 1fr;
+  }
+  #main-menu #map-preview {
+    grid-row: 2;
+  }
+  #main-menu .map-settings-grid {
+    grid-row: 1 / span 3;
+  }
+  #main-menu .map-feature-toggles {
+    grid-column: 1 / span 2;
+    grid-row: auto;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  #main-menu .map-feature-toggles small {
+    display: none;
+  }
+  #main-menu .map-actions {
+    grid-column: 1;
+  }
+  #main-menu .map-note {
+    grid-column: 2;
+  }
+}
+@media (max-height: 650px) {
+  #main-menu {
+    overflow: auto;
+  }
+  #main-menu .garage-layout {
+    overflow: visible;
+    flex: none;
+  }
+  #main-menu .showroom {
+    flex: none;
+    height: 300px;
+  }
+  #main-menu .garage-panel {
+    flex: none;
+    max-height: 340px;
+  }
+}
+
+.doctor-caption {
+  position: absolute;
+  right: 28px;
+  top: 23px;
+  z-index: 1;
+  color: #4d6b5f;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  text-align: right;
+  pointer-events: none;
+}
+.doctor-caption strong {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin: 5px 0;
+}
+.doctor-caption small {
+  font-size: 9px;
+  letter-spacing: 0;
+}
+@media (max-width: 750px) {
+  .doctor-caption {
+    right: 16px;
+    top: 15px;
+  }
+  .doctor-caption strong {
+    font-size: 12px;
+  }
+}
+
+.doctor-caption { opacity: 0; }
+
+#main-menu .rider-attributes { position: absolute; top: 20px; right: 28px; width: 215px; padding: 14px 16px; background: #f5f5e9e6; border: 1px solid #a9bfb47a; border-radius: 14px; z-index: 1; pointer-events: none; }
+#main-menu .rider-attributes h3 { margin: 0 0 12px; font-size: 13px; color: #294f4e; }
+#main-menu .rider-attributes h3 small { font-size: 9px; font-weight: 400; margin-left: 7px; }
+#current-attributes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+#current-attributes div { display: flex; flex-direction: column; gap: 3px; }
+#current-attributes span { font-size: 10px; color: #637e73; }
+#current-attributes strong { font-size: 18px; font-variant-numeric: tabular-nums; color: #244d4a; }
+#current-attributes small { font-size: 9px; margin-left: 3px; font-weight: 400; }
+#main-menu[data-operating="true"] .rider-attributes { opacity: 0; }
+@media(max-width: 650px) {
+  #main-menu .rider-attributes { top: 12px; right: 12px; width: 150px; padding: 10px; }
+  #main-menu .rider-attributes h3 small { display: none; }
+  #current-attributes { gap: 7px; }
+  #current-attributes strong { font-size: 14px; }
+}

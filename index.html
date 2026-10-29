@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>鹈鹕竞速</title>
+    <link rel="stylesheet" href="./src/styles/main.css?v=durability-57" />
+    <link rel="stylesheet" href="./src/styles/menu.css?v=progress-59" />
+    <link rel="stylesheet" href="./src/styles/workshop.css?v=workshop-53" />
+  </head>
+  <body data-screen="menu">
+    <div
+      id="scene"
+      role="img"
+      aria-label="鹈鹕第一人称海滩骑行，前方赛道随行进持续生成"
+    ></div>
+    <div id="race-ui" hidden>
+      <canvas id="speed-fx" aria-hidden="true"></canvas>
+      <div id="acceleration-notice" hidden>
+        加速中 <span>ACCELERATING</span>
+      </div>
+      <header>
+        <div class="kicker" id="race-kicker">PELICAN / SOLO TRAINING</div>
+        <h1 id="race-title">无尽海岸</h1>
+        <div class="tags">
+          <span id="camera-label">第一人称</span><span id="race-mode">单人训练</span
+          ><span id="speed-cap">上限 220 km/h</span>
+        </div>
+      </header>
+      <div class="badge">
+        <span class="dot"></span><span id="riding-loadout">向海风出发</span>
+      </div>
+      <button id="back-home">← 主界面</button>
+      <button class="race-settings" data-open-settings>设置</button>
+      <aside class="telemetry">
+        <div class="speedometer" role="img" aria-label="速度仪表盘" id="speedometer">
+          <svg viewBox="0 0 220 190" aria-hidden="true">
+            <circle class="dial-track" cx="110" cy="104" r="82" pathLength="100" />
+            <circle class="dial-fill" id="gauge-fill" cx="110" cy="104" r="82" pathLength="100" />
+            <g class="dial-ticks"><path d="M52 162l8-8 M28 104h11 M52 46l8 8 M110 22v11 M168 46l-8 8 M192 104h-11 M168 162l-8-8" /></g>
+            <text x="44" y="181">0</text><text id="gauge-mid" x="110" y="52">110</text><text id="gauge-max" x="180" y="181">220</text>
+            <g id="gauge-needle" transform="rotate(-135 110 104)"><path d="M107 103 L110 41 L113 103 Z" /></g>
+            <circle class="dial-hub" cx="110" cy="104" r="5" />
+          </svg>
+          <div class="speed-number"><span id="velocity">0</span><small>KM/H</small></div>
+        </div>
+        <div class="race-destruction">
+          <span id="pedal-cadence">0</span> RPM · 已破坏 <span id="destroyed-count">0</span> 个障碍物
+        </div>
+        <div class="distance-number">
+          <span id="distance">0.00</span><small>公里</small>
+        </div>
+      </aside>
+      <aside class="combat-hud" aria-label="人机与武器状态">
+        <strong id="rival-status">AI 竞速选手</strong>
+        <strong id="race-result" aria-live="polite"></strong>
+        <span id="weapon-status">未装备武器</span>
+        <span id="gatling-status"></span>
+        <span id="pickup-status" aria-live="polite"></span>
+        <small id="weapon-hits">命中 0 次</small>
+      </aside>
+      <aside id="durability-panel" aria-labelledby="durability-title" hidden>
+        <h2 id="durability-title">部位耐久 <small>当前 / 最大</small></h2>
+        <div class="durability-scroll">
+          <table class="durability-table">
+            <thead><tr><th scope="col">部位</th><th scope="col">玩家</th><th scope="col" id="durability-rival-heading">AI</th></tr></thead>
+            <tbody id="durability-rows"></tbody>
+          </table>
+        </div>
+      </aside>
+      <div id="weapon-reticle" aria-hidden="true" hidden>＋</div>
+      <aside class="map-panel">
+        <div class="map-title">前方路线<span>250 m</span></div>
+        <canvas id="minimap" aria-label="前方250米路线与当前位置"></canvas>
+      </aside>
+      <footer class="keyboard-help" aria-label="骑行快捷键">
+        <div class="ride-status"><span id="ride-status">骑行中</span><span id="brake-status">后刹已松开</span><span id="rate">限速 220 km/h</span></div>
+        <p>W 加速 / 失衡时辅助回正 · ↑ 加速 · S / ↓ 倒车 · A / D / ← / → 转向 · F 后轮刹车开关 · 空格 跳跃 · Shift＋方向键 移重心 · 长喙 Q 左摆 / E 右摆</p>
+        <p>E 武器攻击（按住机枪连射） · R 重新出发 · N 换路线 · P 暂停 / 继续 · C 切换视角 · B 车铃 · − / ＋ 调整限速 · 松开油门滑行</p>
+      </footer>
+      <div id="crash-notice" role="status" hidden>撞飞！正在恢复…</div>
+    </div>
+    <main id="main-menu">
+      <div class="menu-top">
+        <a class="brand" href="#" aria-label="鹈鹕竞速主页"
+          ><span class="brand-symbol" aria-hidden="true">P.</span
+          ><span>鹈鹕竞速<small>PELICAN CUSTOM LAB</small></span></a
+        >
+        <div class="menu-top-actions">
+          <span id="garage-points" aria-live="polite">积分 0</span>
+          <button data-open-settings>设置</button>
+          <button id="start-ride" disabled>正在准备…</button>
+        </div>
+      </div>
+      <div class="garage-layout">
+        <section class="showroom" aria-labelledby="menu-title">
+          <div class="menu-heading">
+            <span class="eyebrow">COASTAL CUSTOMS / 01</span>
+            <h1 id="menu-title">海岸改造所</h1>
+            <p>身体改造 · 装备更换</p>
+          </div>
+          <div
+            id="garage-preview"
+            role="img"
+            tabindex="0"
+            aria-label="3D 鹈鹕骑乘预览，拖动旋转；身体改造时显示手术场景"
+          ></div>
+          <aside class="rider-attributes" aria-label="当前鹈鹕属性">
+            <h3>当前属性 <small>含车辆与武器道具</small></h3>
+            <div id="current-attributes" aria-live="polite"></div>
+          </aside>
+          <div class="doctor-caption">
+            DR. BOLT <strong>骨锯博士</strong><small>改造负责人</small>
+          </div>
+          <div class="workshop-stage-status">
+            <span class="status-dot"></span
+            ><span id="workshop-status" role="status">选择下方部件</span
+            ><progress
+              id="operation-progress"
+              max="1"
+              value="0"
+              aria-label="改造进度"
+              hidden
+            ></progress>
+          </div>
+          <div class="preview-caption">
+            <span class="preview-number">YOUR RIDER</span
+            ><strong id="preview-name"></strong><span id="preview-bike"></span>
+          </div>
+          <div class="operation-actions">
+            <button id="modify-player">选择改造 <span>↗</span></button
+            ><button id="skip-operation" hidden>跳过动画</button
+            ><small>身体改造需手术 · 头盔与自行车直接换装</small>
+          </div>
+        </section>
+        <section class="garage-panel" aria-label="出发准备">
+          <div class="panel-heading">
+            <span class="eyebrow">READY TO RIDE</span>
+            <h2 id="workshop-title">改装工坊</h2>
+            <span class="saved-note">改造完成后保存</span>
+          </div>
+          <nav class="workshop-navigation" aria-label="工坊功能">
+            <button id="open-equipment-editor" aria-pressed="true">
+              角色、车辆与装备
+            </button>
+            <button id="open-map-editor" aria-pressed="false">地图改造</button>
+          </nav>
+          <div id="equipment-editor">
+            <div class="parts-slot-group">
+              <span>鹈鹕</span>
+              <div
+                id="pelican-slots"
+                role="group"
+                aria-label="鹈鹕改装部位"
+              ></div>
+            </div>
+            <div class="parts-slot-group">
+              <span>自行车</span>
+              <div
+                id="bicycle-slots"
+                role="group"
+                aria-label="自行车改装部位"
+              ></div>
+            </div>
+            <div class="parts-slot-group">
+              <span>道具</span>
+              <div id="item-slots" role="group" aria-label="道具分类"></div>
+            </div>
+            <div class="parts-slot-group">
+              <span>武器</span>
+              <div id="weapon-slots" role="group" aria-label="武器分类"></div>
+            </div>
+            <div class="choice-heading">
+              <h3 id="active-slot-name">头盔改装</h3>
+              <button id="reset-parts" type="button">恢复原装</button>
+            </div>
+            <div id="part-options" role="group" aria-label="部件选项"></div>
+            <details class="build-stats" aria-label="装配后性能">
+              <summary class="stats-title">
+                装配后性能 <small>查看属性</small>
+              </summary>
+              <div id="tuning-stats" aria-live="polite"></div>
+              <p>传动上限不等于实测极速；重量、风阻和抓地共同影响表现。</p>
+            </details>
+            <details class="appearance-options">
+              <summary>配色与基础造型 <span>保留独立选择</span></summary>
+              <div class="choice-heading">
+                <h3><span>01</span> 选择角色</h3>
+                <span>3 套装扮</span>
+              </div>
+              <div
+                id="character-options"
+                class="garage-options"
+                role="group"
+                aria-label="选择角色"
+              ></div>
+              <p class="choice-detail" id="character-detail"></p>
+              <div class="choice-heading">
+                <h3><span>02</span> 选择自行车</h3>
+                <span>3 款车型</span>
+              </div>
+              <div
+                id="bike-options"
+                class="garage-options"
+                role="group"
+                aria-label="选择自行车"
+              ></div>
+              <p class="choice-detail" id="bike-detail"></p>
+            </details>
+          </div>
+          <section id="map-editor" aria-label="地图改造" hidden>
+            <div class="map-preview-heading">
+              <strong>无尽海岸</strong><span>实时生成 · 8 人赛道</span>
+            </div>
+            <canvas
+              id="map-preview"
+              width="640"
+              height="300"
+              role="img"
+              aria-label="赛道预览"
+            ></canvas>
+            <p id="map-summary" aria-live="polite"></p>
+            <div class="map-settings-grid">
+              <label>地图<select id="map-mapId"></select></label>
+              <label
+                >赛道宽度<select id="map-width">
+                  <option value="12">12 米 · 标准</option>
+                  <option value="16">16 米 · 宽阔</option>
+                  <option value="20">20 米 · 超宽</option>
+                </select></label
+              >
+              <label
+                >弯道类型<select id="map-curves">
+                  <option value="straight">笔直海岸</option>
+                  <option value="gentle" selected>舒缓弯道</option>
+                  <option value="sweeping">连续大弯</option>
+                </select></label
+              >
+              <label
+                >障碍物密度<select id="map-obstacles">
+                  <option value="off">关闭</option>
+                  <option value="light">稀疏</option>
+                  <option value="normal" selected>标准</option>
+                  <option value="dense">密集</option>
+                </select></label
+              >
+              <label
+                >路线种子<input
+                  id="map-seed"
+                  type="number"
+                  min="0"
+                  max="4294967295"
+                  step="1"
+                  value="93417"
+              /></label>
+            </div>
+            <div
+              class="map-feature-toggles"
+              role="group"
+              aria-label="地图功能选项"
+            >
+              <label
+                ><input type="checkbox" id="map-destruction" checked /><span
+                  >碰撞破坏<small>障碍物碎裂，部位耐久耗尽才脱落</small></span
+                ></label
+              >
+              <label
+                ><input type="checkbox" id="map-sparks" checked /><span
+                  >碰撞与摩擦火星<small>实际碰撞、持续擦碰时触发</small></span
+                ></label
+              >
+              <label
+                ><input type="checkbox" id="map-speedEffects" checked /><span
+                  >加速特效<small>速度线与视野扩张</small></span
+                ></label
+              >
+            </div>
+            <div class="map-actions">
+              <button id="random-map">随机路线</button
+              ><button id="reset-map">恢复默认地图</button>
+            </div>
+            <p class="map-note">
+              自动保存，下次出发应用。正常落地直接接续，赛道上方腾空不重置；侧翻着地或脱轨后倒计时 5 秒。
+            </p>
+          </section>
+          <div class="departure">
+            <span id="loadout-summary" aria-live="polite"></span
+            ><small>头盔与自行车直接换装 · 点击物品图查看 3D 预览</small>
+          </div>
+        </section>
+      </div>
+      <footer class="menu-footer">
+        <span>海风 · 公路 · 好心情</span
+        ><span>W / S 调速 &nbsp; A / D 转向</span>
+      </footer>
+    </main>
+    <dialog id="game-settings" aria-labelledby="settings-title">
+      <div class="settings-heading">
+        <h2 id="settings-title">设置</h2>
+        <button id="close-settings" aria-label="关闭设置">×</button>
+      </div>
+      <label class="camera-setting">视角
+        <select id="camera-setting" aria-label="骑行视角设置">
+          <option value="first">第一人称</option>
+          <option value="third">第三人称跟随</option>
+        </select>
+      </label>
+      <div class="audio-controls">
+        <button data-audio-toggle aria-pressed="false">开启声音</button>
+        <label>音量<input data-audio-volume type="range" min="0" max="100" value="45" aria-label="音乐与音效音量" /></label>
+      </div>
+    </dialog>
+    <dialog id="item-dialog" aria-labelledby="item-name">
+      <div class="item-dialog-content">
+        <button id="close-item" aria-label="关闭物品预览">×</button>
+        <span id="item-slot" class="eyebrow"></span>
+        <h2 id="item-name"></h2>
+        <div
+          id="item-viewport"
+          role="img"
+          aria-label="独立物品 3D 模型，拖拽旋转，滚轮缩放"
+        ></div>
+        <div class="item-view-controls" aria-label="预览视角控制">
+          <button id="item-turn-left" aria-label="向左旋转物品">↶</button>
+          <button id="item-turn-right" aria-label="向右旋转物品">↷</button>
+          <button id="item-zoom-out" aria-label="缩小物品">−</button>
+          <button id="item-zoom-in" aria-label="放大物品">＋</button>
+          <button id="item-view-reset">重置视角</button>
+        </div>
+        <p id="item-changes"></p>
+        <p id="item-effect"></p>
+        <button id="equip-item">装配此物品</button>
+        <small class="item-view-note"
+          >拖拽旋转 · 滚轮缩放 · 预览不改变当前装备</small
+        >
+      </div>
+    </dialog>
+    <div id="error">当前浏览器无法启用 WebGL，请使用支持 3D 的浏览器打开。</div>
+    <script src="./src/core/errors.js"></script>
+    <script src="./vendor/three/three.min.js"></script>
+    <script type="module" src="./src/core/bootstrap.js?v=progress-59"></script>
+  </body>
+</html>
